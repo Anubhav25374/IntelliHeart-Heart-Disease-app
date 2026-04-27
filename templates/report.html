@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliHeart — Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        [data-theme="dark"] {
+            --bg:         #0a0a0f;
+            --card:       rgba(255,255,255,0.03);
+            --border:     rgba(255,255,255,0.08);
+            --text:       #ffffff;
+            --muted:      #888888;
+            --label:      #aaaaaa;
+            --nav-bg:     rgba(10,10,15,0.9);
+            --table-head: rgba(0,245,255,0.15);
+            --table-alt:  rgba(255,255,255,0.02);
+            --toggle-bg:  rgba(255,255,255,0.1);
+            --input-bg:   rgba(255,255,255,0.05);
+        }
+
+        [data-theme="light"] {
+            --bg:         #f0f4f8;
+            --card:       #ffffff;
+            --border:     rgba(0,0,0,0.08);
+            --text:       #111111;
+            --muted:      #666666;
+            --label:      #444444;
+            --nav-bg:     rgba(255,255,255,0.92);
+            --table-head: rgba(0,120,255,0.1);
+            --table-alt:  rgba(0,0,0,0.02);
+            --toggle-bg:  rgba(0,0,0,0.06);
+            --input-bg:   #f8f9fa;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.4s, color 0.4s;
+        }
+
+        /* NAVBAR */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 60px;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00f5ff, #bf00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+
+        .theme-toggle {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--toggle-bg);
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover { border-color: #00f5ff; transform: scale(1.1); }
+
+        .nav-link {
+            padding: 8px 18px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: #00f5ff;
+            font-size: 13px;
+            text-decoration: none;
+            transition: background 0.3s;
+            -webkit-text-fill-color: #00f5ff;
+        }
+
+        .nav-link:hover { background: rgba(0,245,255,0.1); }
+
+        /* CONTAINER */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        /* REPORT HEADER */
+        .report-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .report-header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #00f5ff, #bf00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .report-date {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: background 0.4s;
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #00f5ff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* INFO GRID */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .info-item { }
+
+        .info-label {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* GAUGE */
+        .gauge-wrap {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .gauge-svg { max-width: 320px; margin: 0 auto; display: block; }
+
+        .gauge-label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* MODEL RESULTS */
+        .model-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .model-card {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .model-title {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .model-badge {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .badge-red   { background: rgba(217,48,37,0.15); border: 1px solid rgba(217,48,37,0.4); color: #ff6b6b; }
+        .badge-green { background: rgba(24,128,56,0.15);  border: 1px solid rgba(24,128,56,0.4);  color: #51cf66; }
+
+        .prob-row { margin: 8px 0; text-align: left; }
+
+        .prob-label {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .prob-track {
+            background: var(--border);
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .prob-fill-green { background: linear-gradient(90deg,#51cf66,#2f9e44); height:100%; border-radius:8px; }
+        .prob-fill-red   { background: linear-gradient(90deg,#ff6b6b,#ff4444); height:100%; border-radius:8px; }
+
+        .prob-val {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* VERDICT */
+        .verdict-box {
+            text-align: center;
+            padding: 25px;
+        }
+
+        .verdict-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .verdict-text {
+            font-size: 32px;
+            font-weight: 800;
+            padding: 18px 50px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .verdict-red    { background:rgba(217,48,37,0.15); border:1px solid rgba(217,48,37,0.4); color:#ff6b6b; }
+        .verdict-green  { background:rgba(24,128,56,0.15);  border:1px solid rgba(24,128,56,0.4);  color:#51cf66; }
+        .verdict-orange { background:rgba(255,165,0,0.15);  border:1px solid rgba(255,165,0,0.4);  color:#ffa94d; }
+
+        /* RECOMMENDATIONS */
+        .rec-list { list-style: none; }
+
+        .rec-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text);
+            transition: border-color 0.3s;
+        }
+
+        .rec-list li:hover { border-color: #00f5ff; }
+
+        /* DOWNLOAD BUTTONS */
+        .download-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-download {
+            padding: 15px 35px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-family: Arial, sans-serif;
+        }
+
+        .btn-pdf {
+            background: linear-gradient(135deg, #00f5ff, #bf00ff);
+            color: white;
+            -webkit-text-fill-color: white;
+            box-shadow: 0 0 25px rgba(0,245,255,0.3);
+        }
+
+        .btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0,245,255,0.5);
+        }
+
+        .btn-html {
+            background: transparent;
+            border: 1px solid var(--border) !important;
+            color: var(--text);
+            -webkit-text-fill-color: var(--text);
+        }
+
+        .btn-html:hover {
+            border-color: #00f5ff !important;
+            background: rgba(0,245,255,0.05);
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 1px solid var(--border) !important;
+            color: #00f5ff;
+            -webkit-text-fill-color: #00f5ff;
+        }
+
+        .btn-back:hover { background: rgba(0,245,255,0.08); }
+
+        .warning {
+            text-align: center;
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 20px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        /* HIDDEN FORM */
+        .hidden-form { display: none; }
+
+        @media (max-width: 768px) {
+            nav            { padding: 15px 20px; }
+            .info-grid     { grid-template-columns: 1fr 1fr; }
+            .model-grid    { grid-template-columns: 1fr; }
+            .verdict-text  { font-size: 22px; padding: 15px 25px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+    <a href="/" class="logo">🫀 IntelliHeart</a>
+    <div class="nav-right">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">☀️</button>
+        <a href="/predict" class="nav-link">← New Prediction</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="report-header">
+        <h1>Cardiovascular <span class="gradient-text">Risk Report</span></h1>
+        <p class="report-date">📅 Generated: {{ data.date }}</p>
+    </div>
+
+    <!-- PATIENT INFO -->
+    <div class="card">
+        <div class="card-title">👤 Patient Information</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Age</div>
+                <div class="info-value">{{ data.age }} years</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Sex</div>
+                <div class="info-value">{{ data.sex }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">BMI</div>
+                <div class="info-value">{{ data.bmi }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Height</div>
+                <div class="info-value">{{ data.height }} cm</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Weight</div>
+                <div class="info-value">{{ data.weight }} kg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Smoker</div>
+                <div class="info-value">{{ data.smoke }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Alcohol</div>
+                <div class="info-value">{{ data.alco }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Physically Active</div>
+                <div class="info-value">{{ data.active }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Chest Pain Type</div>
+                <div class="info-value">{{ data.chest_pain }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Resting BP</div>
+                <div class="info-value">{{ data.resting_bp }} mmHg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Diastolic BP</div>
+                <div class="info-value">{{ data.ap_lo }} mmHg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Cholesterol</div>
+                <div class="info-value">{{ data.cholesterol }} mg/dl</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Glucose</div>
+                <div class="info-value">{{ data.gluc }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fasting BS &gt;120</div>
+                <div class="info-value">{{ data.fasting_bs }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ECG PARAMETERS -->
+    <div class="card">
+        <div class="card-title">📈 ECG Parameters</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Resting ECG</div>
+                <div class="info-value">{{ data.resting_ecg }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Max Heart Rate</div>
+                <div class="info-value">{{ data.max_hr }} bpm</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Exercise Angina</div>
+                <div class="info-value">{{ data.ex_angina }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">ST Depression</div>
+                <div class="info-value">{{ data.oldpeak }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">ST Slope</div>
+                <div class="info-value">{{ data.st_slope }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RISK GAUGE -->
+    <div class="card">
+        <div class="card-title">🎯 Risk Level Gauge</div>
+        <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background arc -->
+                <path d="M 30 150 A 120 120 0 0 1 270 150"
+                      fill="none" stroke="#333" stroke-width="22" stroke-linecap="round"/>
+                <!-- Green zone -->
+                <path d="M 30 150 A 120 120 0 0 1 110 43"
+                      fill="none" stroke="#51cf66" stroke-width="22" stroke-linecap="round" opacity="0.8"/>
+                <!-- Orange zone -->
+                <path d="M 110 43 A 120 120 0 0 1 190 43"
+                      fill="none" stroke="#ffa94d" stroke-width="22" stroke-linecap="round" opacity="0.8"/>
+                <!-- Red zone -->
+                <path d="M 190 43 A 120 120 0 0 1 270 150"
+                      fill="none" stroke="#ff6b6b" stroke-width="22" stroke-linecap="round" opacity="0.8"/>
+
+                <!-- Needle -->
+                {% if data.verdict_color == 'green' %}
+                    <line x1="150" y1="150" x2="75" y2="80"
+                          stroke="#51cf66" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="150" cy="150" r="8" fill="#51cf66"/>
+                {% elif data.verdict_color == 'orange' %}
+                    <line x1="150" y1="150" x2="150" y2="30"
+                          stroke="#ffa94d" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="150" cy="150" r="8" fill="#ffa94d"/>
+                {% else %}
+                    <line x1="150" y1="150" x2="225" y2="80"
+                          stroke="#ff6b6b" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="150" cy="150" r="8" fill="#ff6b6b"/>
+                {% endif %}
+
+                <!-- Labels -->
+                <text x="20"  y="168" fill="#51cf66" font-size="12" font-weight="bold">LOW</text>
+                <text x="128" y="22"  fill="#ffa94d" font-size="12" font-weight="bold">MED</text>
+                <text x="240" y="168" fill="#ff6b6b" font-size="12" font-weight="bold">HIGH</text>
+            </svg>
+            <div class="gauge-label">
+                Risk Level:
+                <strong style="color:
+                    {% if data.verdict_color == 'green' %}#51cf66
+                    {% elif data.verdict_color == 'orange' %}#ffa94d
+                    {% else %}#ff6b6b{% endif %}">
+                    {{ data.verdict }}
+                </strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODEL RESULTS -->
+    <div class="card">
+        <div class="card-title">🤖 AI Model Results</div>
+        <div class="model-grid">
+
+            <div class="model-card">
+                <div class="model-title">Model 1 — ECG + Clinical</div>
+                <div class="model-badge {{ 'badge-red' if data.pred1 == 1 else 'badge-green' }}">
+                    {{ '🔴 Heart Disease Detected' if data.pred1 == 1 else '🟢 No Heart Disease' }}
+                </div>
+                <div class="prob-row">
+                    <div class="prob-label">No Disease</div>
+                    <div class="prob-track">
+                        <div class="prob-fill-green" style="width:{{ data.prob1_no }}%"></div>
+                    </div>
+                    <div class="prob-val">{{ data.prob1_no }}%</div>
+                </div>
+                <div class="prob-row">
+                    <div class="prob-label">Heart Disease</div>
+                    <div class="prob-track">
+                        <div class="prob-fill-red" style="width:{{ data.prob1_dis }}%"></div>
+                    </div>
+                    <div class="prob-val">{{ data.prob1_dis }}%</div>
+                </div>
+            </div>
+
+            <div class="model-card">
+                <div class="model-title">Model 2 — Clinical Only</div>
+                <div class="model-badge {{ 'badge-red' if data.pred2 == 1 else 'badge-green' }}">
+                    {{ '🔴 Disease Detected' if data.pred2 == 1 else '🟢 No Disease' }}
+                </div>
+                <div class="prob-row">
+                    <div class="prob-label">No Disease</div>
+                    <div class="prob-track">
+                        <div class="prob-fill-green" style="width:{{ data.prob2_no }}%"></div>
+                    </div>
+                    <div class="prob-val">{{ data.prob2_no }}%</div>
+                </div>
+                <div class="prob-row">
+                    <div class="prob-label">Heart Disease</div>
+                    <div class="prob-track">
+                        <div class="prob-fill-red" style="width:{{ data.prob2_dis }}%"></div>
+                    </div>
+                    <div class="prob-val">{{ data.prob2_dis }}%</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- VERDICT -->
+    <div class="card">
+        <div class="card-title">🏥 Combined Verdict</div>
+        <div class="verdict-box">
+            <div class="verdict-label">Final Risk Assessment</div>
+            <div class="verdict-text verdict-{{ data.verdict_color }}">
+                {{ data.verdict }}
+            </div>
+        </div>
+    </div>
+
+    <!-- RECOMMENDATIONS -->
+    <div class="card">
+        <div class="card-title">💡 Recommendations</div>
+        <ul class="rec-list">
+            {% for rec in data.recommendations %}
+            <li>{{ rec }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- DOWNLOAD BUTTONS -->
+    <div class="download-section">
+        <!-- PDF Download -->
+        <form method="POST" action="/download_pdf" id="pdfForm">
+            {% for key, value in request.form.items() %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endfor %}
+            <button type="submit" class="btn-download btn-pdf">
+                📄 Download PDF Report
+            </button>
+        </form>
+
+        <!-- HTML Download -->
+        <button onclick="downloadHTML()" class="btn-download btn-html">
+            🌐 Download HTML Report
+        </button>
+
+        <!-- Back -->
+        <a href="/predict" class="btn-download btn-back">
+            ← New Prediction
+        </a>
+    </div>
+
+    <div class="warning">
+        ⚠️ This report is generated by an AI system for educational purposes only.
+        Always consult a qualified doctor for medical advice.
+    </div>
+
+</div>
+
+<script>
+    // Theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next    = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        document.getElementById('themeBtn').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    // Download HTML
+    function downloadHTML() {
+        const html     = document.documentElement.outerHTML;
+        const blob     = new Blob([html], { type: 'text/html' });
+        const url      = URL.createObjectURL(blob);
+        const a        = document.createElement('a');
+        a.href         = url;
+        a.download     = 'IntelliHeart_Report.html';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+</body>
+</html>
